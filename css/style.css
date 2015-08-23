@@ -24,7 +24,7 @@ main {
 	transition: box-shadow 0.5s;
 }
 .button.highlight {
-	box-shadow: 0 0 8px goldenrod;
+	box-shadow: 0 0 3px 4px goldenrod;
 }
 
 .message-container .message {

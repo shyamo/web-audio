@@ -18,7 +18,6 @@ var itsChristmas = {
 		}
 
 		itsChristmas.buttons = document.querySelectorAll('.button');
-		console.log(itsChristmas.buttons)
 
 		for(i = 0; i < itsChristmas.buttons.length; i++) {
 			itsChristmas.buttons[i].onclick = itsChristmas.createDing;
@@ -29,7 +28,9 @@ var itsChristmas = {
 	sequence: {
 		1: [4, 4, 4],
 		2: [4, 4, 4],
-		3: [4, 6, 2, 3, 4]
+		3: [4, 6, 2, 3, 4],
+		4: [4, 4, 4, null, 4, 4, 4, null, 4, 6, 2, 3, 4],
+		5: [5, 5, 5, null, 5, 5, 4, 4, 4, 4, 4, 3, 3, 4, 3, 6]
 	},
 	
 	checkPosition: function(note) {
@@ -37,46 +38,77 @@ var itsChristmas = {
 		var newNoteElem;
 		var oldNote;
 		var nextStep;
+		
 		if(itsChristmas.step === 0) {
+		
+			// Let user play 5 notes on first step
 			if(itsChristmas.counter < 4) {
 				itsChristmas.counter++;
 			} else {
 				itsChristmas.nextStep(1);
 			}
+			
 		} else {
 			
 			if(note === undefined) {
-				// First note
-				console.log('first')
+				
+				// First note in step
 				newNote = itsChristmas.sequence[itsChristmas.step][itsChristmas.counter];
-				console.log(newNote);
 
 				newNoteElem = document.querySelector('[data-note="' + newNote + '"]');
 				newNoteElem.classList.add('highlight');
-			} else {
-				// Subsequent notes
-				// Check the right note was played
-				console.log('subsequent');
-				oldNote = itsChristmas.sequence[itsChristmas.step][itsChristmas.counter];
-				console.log(itsChristmas.counter);
 				
-				if(parseInt(note, 10) === parseInt(oldNote, 10)) {
+			} else {
+
+				// Subsequent notes
+				oldNote = itsChristmas.sequence[itsChristmas.step][itsChristmas.counter];
+				
+				// Check the right note was played
+				if(parseInt(note, 10) === parseInt(oldNote, 10) || note === 'null') {
+					// Have we played all of the notes?
 					if(itsChristmas.counter + 1 !== itsChristmas.sequence[itsChristmas.step].length) {
+						// If not, highlight the new note
 						itsChristmas.counter++;
 						newNote = itsChristmas.sequence[itsChristmas.step][itsChristmas.counter];
-						newNoteElem = document.querySelector('[data-note="' + newNote + '"]');
-						newNoteElem.classList.add('highlight');
+						
+						if (newNote === null) {
+							highlightNote(newNote, 1200);						
+						} else {
+							highlightNote(newNote, 200);
+						}
+						
 					} else {
+						// Otherwise, move to next step
 						nextStep = parseInt(itsChristmas.step, 10) + 1;
-						console.log(nextStep)
-						console.log(typeof(nextStep))
 						itsChristmas.nextStep(nextStep)
 					}
 				} else {
+					// They got it wrong
 					itsChristmas.wrong();
 				}
 			}
 			
+		}
+
+		function highlightNote(newNote, delay) {
+			var newNoteElem = document.querySelector('[data-note="' + newNote + '"]');
+			itsChristmas.updateButtons('none')
+			window.setTimeout(function() {
+				if (newNote === null) {
+					itsChristmas.updateButtons('auto')
+					itsChristmas.checkPosition('null');
+				} else {
+					newNoteElem.classList.add('highlight');
+					itsChristmas.updateButtons('auto')
+				}
+			}, delay);
+		}
+		
+	},
+	
+	updateButtons: function(style) {
+		for (i = 1; i < itsChristmas.buttons.length; i++) {
+			itsChristmas.buttons[i].style.pointerEvents = style;
 		}
 	},
 	
@@ -94,15 +126,13 @@ var itsChristmas = {
 		oldStep.style.display = 'none';
 		newStep.style.display = 'block';
 		
-		console.log('NEXT!');
 		itsChristmas.checkPosition();
-		
 	},
 	
 	createDing: function(evt) {
 		evt.preventDefault();
 		var frequency = this.getAttribute('data-note');
-		console.log('playing');
+		console.log(frequency);
 		
 		var noteElem = document.querySelector('.highlight');
 		if(noteElem !== null) {
