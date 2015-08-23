@@ -21,6 +21,10 @@ main {
 	text-align: center;
 	background-color: cadetblue;
 	color: #FFF;
+	transition: box-shadow 0.5s;
+}
+.button.highlight {
+	box-shadow: 0 0 8px goldenrod;
 }
 
 .message-container .message {
