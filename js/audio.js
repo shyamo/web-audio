@@ -17,13 +17,44 @@
     console.log(buttons)
     
     var notes = [];
-    var frequency = [440, 493, 261, 293, 329, 349, 392];
+    var frequencyArray = [440, 493, 261, 293, 329, 349, 392];
     
     for(i = 0; i < buttons.length; i++) {
-        buttons[i].onclick = createNote;
+        buttons[i].onclick = createDing;
     }
 
-    function createNote(evt) {
+    function createDing(evt) {
+        evt.preventDefault();
+        var frequency = this.getAttribute('data-note');
+        console.log('playing');
+        
+		// [frequency, type, fadeMid, fadeEnd]
+		var baseArray = [frequencyArray[frequency], 'triangle', 0, 0.5, 1];
+		var depthArray = [frequencyArray[frequency], 'square', 0.2, 1.2, 1.5];
+		
+		function playArray(array) {
+			console.log(array)
+			oscillator = context.createOscillator();
+			gainNode = context.createGain();
+			gainNode.gain.value = 1;
+			console.log(gainNode);
+			oscillator.type = array[1];
+			oscillator.frequency.value = array[0]; // value in hertz
+			oscillator.connect(gainNode);
+			gainNode.connect(context.destination);
+
+			gainNode.gain.exponentialRampToValueAtTime(1, context.currentTime + array[2]);
+			gainNode.gain.exponentialRampToValueAtTime(0.1, context.currentTime + array[3]);
+			gainNode.gain.linearRampToValueAtTime(0, context.currentTime + array[4]);
+			oscillator.start(context.currentTime);
+		}
+		
+		playArray(baseArray);
+		playArray(depthArray);
+		
+    };
+
+	function createNote(evt) {
         evt.preventDefault();
         var number = this.getAttribute('data-note');
         console.log('playing');
